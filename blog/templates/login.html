@@ -1,0 +1,89 @@
+{% from "macros.html" import render_form %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="http://labfile.oss.aliyuncs.com/courses/923/week7/code/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <style>
+        body{
+            background: url(../../static/images/bg.png) !important;
+        }
+        .topmargin {
+            height: 100px;
+        }
+
+        .panel-heading {
+            text-align: center;
+        }
+
+        .panel-body {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            margin-top: 10px;
+
+        }
+
+        span.glyphicon {
+            
+            bottom: 0px;
+            top: 0px;
+        }
+        .login {
+            width: 100%;
+        }
+ 
+    </style>
+</head>
+
+<body>
+    <div class="col-md-12 column topmargin">
+
+    </div>
+    <div class="col-md-4 column"></div>
+    <div class="col-md-4 column">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h1>博客管理</h1>
+            </div>
+            <div class="panel-body">
+                <form action="{{ url }}" method="POST">
+                    {{ form.csrf_token }}
+                    {% for field in form %}
+                    {% if field.type == 'CSRFTokenField' %}
+                    {{ '' }}
+                    {% elif field.type == 'SubmitField' %}
+                    <!-- <div class="input-group form-group"> -->
+                    {{ form.submit(class='btn btn-inverse login', type='submit') }}
+                    <!-- </div> -->
+                    {% else %}
+                    <div class="input-group form-group">
+                        <span class="input-group-addon glyphicon {% if field.label.text == '用户名'%}glyphicon glyphicon-user{% elif field.label.text == '密码' %}glyphicon glyphicon-lock{%endif%}"
+                            aria-hidden="true"></span>
+                        {{ field(class='form-control',placeholder=field.label.text) }}
+
+
+                    </div>
+         
+                    {% endif %}
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <script src="http://labfile.oss.aliyuncs.com/courses/923/week7/code/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>

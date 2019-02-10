@@ -1,0 +1,188 @@
+{% extends 'admin/base_back.html' %}
+
+{% block title %}编辑博客{% endblock %}
+
+{% block head_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/bootstrap-markdown-editor.css')}}">
+<style>
+    .md-container{
+    margin-top: 20px !important;
+    margin-bottom: 40px;
+}
+.title{
+    padding-left: 0px;
+}
+.input-group{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.nav-pills{
+    margin-top: 10px;
+}
+.right-form{
+    margin-top: 10px;
+}
+.category-label{
+    padding-right: 0px !important;
+}
+.category-label label{
+    height: 45px;
+    line-height: 45px;
+    
+}
+.category-item{
+    margin-top: 5px;
+    padding-left: 0px;
+}
+.operate{
+    height: 50px;
+    margin-bottom: 40px;
+}
+.operate button{
+    float: right;
+    margin-left: 20px;
+    margin-right: 10px;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="col-sm-12 col-md-7 title">
+    <input type="text" class="blogid" value="{% if blog.id %}{{blog.id}}{%endif%}" hidden>
+    <div class="input-group">
+        <span class="input-group-addon" id="basic-addon3">文章标题：</span>
+        <input type="text" class="form-control title-input" id="basic-url" aria-describedby="basic-addon3" value="{% if blog.id %}{{blog.title}}{% endif%}">
+    </div>
+</div>
+<div class="col-sm-12 col-md-5 right-form">
+
+    <div class="col-sm-12 col-md-7">
+        <div class=" col-md-4 category-label">
+            <!-- <h4> </h4> -->
+            <label for="">类别：</label>
+        </div>
+        <div class=" col-md-8 category-item">
+
+            <div class="form-group ">
+                <select class="form-control category-select">
+                    {% for category in categories%}
+                    <option value="{{category.id}}">{{category.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- <ul class="nav">
+                <li class="dropdown" id="accountmenu">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Tutorials<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">PHP</a></li>
+                        <li><a href="#">MySQL</a></li>
+                        <li><a href="#">JavaScript</a></li>
+                        <li><a href="#">HTML5</a></li>
+                    </ul>
+                </li>
+            </ul> -->
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-3">
+        <!-- <div class="radio">
+            <label>
+                <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked> 选项 1
+            </label>
+        </div> -->
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" class="recommand-input" {% if blog.isRecommand==1%}checked{%endif%}> 推荐
+            </label>
+        </div>
+    </div>
+</div>
+
+<div class="input-group col-md-12">
+    <span class="input-group-addon" id="basic-addon3">标签：</span>
+    <input type="text" class="form-control tags-input" id="basic-url" aria-describedby="basic-addon3" {% if blog.id %}value="{{blog.tags}}"{%endif%}>
+</div>
+<div class="form-group">
+    <label for="info">文章简介：</label>
+    <textarea class="form-control info-input" rows="3">{% if blog.id %}{{blog.info}}{%endif%}</textarea>
+</div>
+<label for="text">正文：</label>
+<textarea name="text" id="myEditor" data=''>{% if blog.id %}{{blog.content}}{%endif%}</textarea>
+<div class="operate">
+
+    <button type="button" class="btn btn-success release">发布</button>
+    <button type="button" class="btn btn-primary save-draft">保存为草稿</button>
+</div>
+
+{% endblock %}
+
+{% block tail_js %}
+{{ super() }}
+<script src="{{url_for('static',filename='js/ace-builds/src-min/ace.js')}}"></script>
+<script src="{{url_for('static',filename='js/bootstrap-markdown-editor.js')}}"></script>
+<script src="{{url_for('static',filename='js/marked.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/Parser.js')}}"></script>
+<script>
+    $(function () {
+        $('#myEditor').markdownEditor('setContent', $('#myEditor').text());
+    });
+    $('.save-draft').click(function () {
+        // console.log($('.category-select').val());
+        // console.log($('.recommand-input')[0].checked);
+        // console.log($('.title-input').val());
+        // console.log($('.info-input').val());
+        // console.log($('.tags-input').val());
+        // var content = $('#myEditor').markdownEditor('content');
+        console.log($('.category-select').find('option:checked').attr('value'));
+    });
+    $('.release').click(function () {
+        blogdata = {
+            'id':$('.blogid').val(),
+            'title': $('.title-input').val(),
+            'category_id': $('.category-select').find('option:checked').attr('value'),
+            'isRecommand': $('.recommand-input')[0].checked ? 1 : 0,
+            'tags': $('.tags-input').val(),
+            'info': $('.info-input').val(),
+            'content': $('#myEditor').markdownEditor('content'),
+            'status': 1
+        }
+        $.ajax({
+            type: 'POST',
+            url: '{{url_for("admin.release")}}',
+            dataType: 'json',
+            data: blogdata,
+            success: function (data) {
+                window.location.href = '{{url_for("admin.blog_manage")}}'
+            },
+            error: function () {
+                alert('fail')
+            }
+        });
+
+    });
+
+    $('#myEditor').markdownEditor({
+        // Activate the preview:
+        preview: true,
+        // This callback is called when the user click on the preview button:
+        onPreview: function (content, callback) {
+            var parser = new HyperDown,
+                html = parser.makeHtml(content);
+            callback(html)
+            // Example of implementation with ajax:
+            // $.ajax({
+            //   url: 'preview.php',
+            //   type: 'POST',
+            //   dataType: 'html',
+            //   data: {content: content},
+            // })
+            // .done(function(result) {
+            //   // Return the html:
+            //   callback(result);
+            // });
+
+        }
+    });
+</script>
+{% endblock %}

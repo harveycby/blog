@@ -1,0 +1,192 @@
+{% extends 'admin/base_back.html' %}
+
+{% block title %}博客管理{% endblock %}
+
+{% block head_css %}
+{{ super() }}
+<link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+<style>
+    a,a:hover{
+    text-decoration: none !important;   
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div id="toolbar" class="btn-group">
+    <button id="btn_add" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+    </button>
+    <button id="btn_edit" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+    </button>
+    <button id="btn_recall" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>撤回
+    </button>
+    <button id="btn_delete" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+    </button>
+</div>
+<table id="tb_departments"></table>
+
+<table id="table"></table>
+{% endblock %}
+
+{% block tail_js %}
+{{ super() }}
+<!-- bootstrap-table.min.js -->
+<script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<!-- 引入中文语言包 -->
+<script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<script>
+    $('#btn_add').click(function () {
+        window.location.href = '/admin/editBlog'
+    });
+    $('#btn_delete').click(function () {
+        var blist = new Array();
+        $('tr.selected').each(function () {
+            blist.push($(this).attr('data-uniqueid'))
+        })
+        $.ajax({
+            type: 'POST',
+            url: '{{url_for("admin.deleteBlog")}}',
+            dataType: 'json',
+            data: { 'idstr': blist.join('.') },
+            success: function (data) {
+                location.reload()
+            },
+            error: function () {
+                alert('fail')
+            }
+        });
+    });
+    $('#btn_recall').click(function () {
+        var blist = new Array();
+        $('tr.selected').each(function () {
+            blist.push($(this).attr('data-uniqueid'))
+        })
+        $.ajax({
+            type: 'POST',
+            url: '{{url_for("admin.recall")}}',
+            dataType: 'json',
+            data: { 'idstr': blist.join('.') },
+            success: function (data) {
+                location.reload()
+            },
+            error: function () {
+                alert('fail')
+            }
+        });
+    });
+    $('#btn_edit').click(function () {
+        if ($('tr.selected').length == 1) {
+            blogid = $('tr.selected').attr('data-uniqueid')
+            window.location.href = '/admin/getBlog/' + blogid
+        } else {
+            alert('修改只能选择一条！')
+        }
+    });
+    $(function () {
+        $('.blog-manage').addClass('active')
+        //1.初始化Table
+        var oTable = new TableInit();
+        oTable.Init();
+
+    });
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+
+            $("#table").bootstrapTable({
+                method: "get",
+                url: "/admin/blog",
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 10,                       //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: true,                //是否启用点击选中行
+                height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+
+                columns: [
+                    {
+                        checkbox: true, // 显示一个勾选框
+                        align: 'center' // 居中显示
+                    }, {
+                        field: 'id', // 返回json数据中的name
+                        title: 'id', // 表格表头显示文字
+                        align: 'center', // 左右居中
+                        valign: 'middle' // 上下居中
+                    }, {
+                        field: 'title',
+                        title: '标题',
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'category',
+                        title: '类型',
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'isRecommand',
+                        title: '推荐',
+                        align: 'center',
+                        valign: 'middle',
+                        formatter: function (value, row, index) { // 单元格格式化函数
+                            var text = '是';
+                            if (value == 0) {
+                                text = "否";
+                            } else {
+                                text = "是";
+                            }
+                            return text;
+                        }
+                    }, {
+                        field: 'status',
+                        title: '状态',
+                        align: 'center',
+                        valign: 'middle',
+                        formatter: function (value, row, index) { // 单元格格式化函数
+                            var text = '已发布';
+                            if (value == 1) {
+                                text = "已发布";
+                            } else {
+                                text = "草稿";
+                            }
+                            return text;
+                        }
+                    }
+                ],
+
+            });
+        };
+        //得到查询的参数
+        // oTableInit.queryParams = function (params) {
+        //     var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        //         limit: params.limit,   //页面大小
+        //         offset: params.offset,  //页码
+        //         departmentname: $("#txt_search_departmentname").val(),
+        //         statu: $("#txt_search_statu").val()
+        //     };
+        //     return temp;
+        // };
+        return oTableInit;
+    };
+
+</script>
+{% endblock %}

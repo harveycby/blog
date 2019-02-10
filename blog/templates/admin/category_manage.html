@@ -1,0 +1,209 @@
+{% extends 'admin/base_back.html' %}
+{% from "macros.html" import confirm_modal %}
+{% block title %}分类管理{% endblock %}
+
+{% block head_css %}
+{{ super() }}
+<link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+{{ confirm_modal('确定删除吗？')}}
+<div id='myModal' class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridSystemModalLabel">添加类别</h4>
+            </div>
+            <div class="modal-body">
+                <p id="categoryid" style="display:none;"></p>
+                <form class="form-horizontal">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">类别名</span>
+                        <input type="text" class="form-control category-input" aria-describedby="basic-addon1">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="save" type="button" class="btn btn-default" data-dismiss="modal">保存</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="toolbar" class="btn-group">
+    <button id="btn_add" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+    </button>
+    <button id="btn_edit" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+    </button>
+    <button id="btn_delete" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+    </button>
+</div>
+<table id="tb_departments"></table>
+
+<table id="table"></table>
+{% endblock %}
+
+{% block tail_js %}
+{{ super() }}
+<!-- bootstrap-table.min.js -->
+<script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<!-- 引入中文语言包 -->
+<script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+<script>
+    $('#myModal').on('hidden.bs.modal', function (e) {
+        $('.category-input').val('')
+    })
+    $('#btn_delete').click(function () {
+        $('#confirm_Modal').modal('show');
+    });
+    $('button.ok').click(function () {
+        var clist = new Array();
+        $('tr.selected').each(function(){
+            clist.push($(this).attr('data-uniqueid'))
+        })
+        $.ajax({
+                type: 'POST',
+                url: '{{url_for("admin.deleteCategory")}}',
+                dataType: 'json',
+                data: {'idstr':clist.join('.')},
+                success: function (data) {
+                    alert('success')
+                    location.reload() 
+                },
+                error: function () {
+                    alert('fail')
+                }
+            });
+    });
+    $('#btn_add').click(function () {
+        $('#myModal').modal('show');
+    });
+    $('#btn_edit').click(function () {
+        if ($('tr.selected').length == 1) {
+            categoryid = $('tr.selected').attr('data-uniqueid')
+            $.ajax({
+                type: 'GET',
+                url: '{{url_for("admin.getCategory")}}',
+                dataType: 'json',
+                data: { 'id': categoryid },
+                success: function (data) {
+                    $('.category-input').attr('placeholder',data['name'])
+                    $('#myModal').modal('show');
+                },
+                error: function () {
+                    alert('fail')
+                }
+            });
+        }
+
+    });
+    $('#save').click(function () {
+
+        categoryid = $('tr.selected').attr('data-uniqueid')
+        categoryname = $('.category-input').val()
+        $.ajax({
+            type: 'POST',
+            url: '{{url_for("admin.saveCategory")}}',
+            dataType: 'json',
+            data: { 'id': Number(categoryid), 'name': categoryname },
+            success: function (data) {
+                location.reload() 
+            },
+            error: function () {
+                alert('fail')
+            }
+        });
+    });
+    $(function () {
+        $('.category-manage').addClass('active')
+        //1.初始化Table
+        var oTable = new TableInit();
+        oTable.Init();
+
+
+    });
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+
+            $("#table").bootstrapTable({
+                method: "get",
+                url: "/admin/category",
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 10,                       //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: true,                //是否启用点击选中行
+                height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+
+                columns: [
+                    {
+                        checkbox: true, // 显示一个勾选框
+                        align: 'center' // 居中显示
+                    }, {
+                        field: 'id', // 返回json数据中的name
+                        title: 'id', // 表格表头显示文字
+                        align: 'center', // 左右居中
+                        valign: 'middle' // 上下居中
+                    }, {
+                        field: 'name',
+                        title: '名称',
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'count',
+                        title: '博客数',
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'created_at',
+                        title: '创建时间',
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'updated_at',
+                        title: '修改时间',
+                        align: 'center',
+                        valign: 'middle'
+                    }
+                ],
+
+            });
+        };
+        //得到查询的参数
+        // oTableInit.queryParams = function (params) {
+        //     var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        //         limit: params.limit,   //页面大小
+        //         offset: params.offset,  //页码
+        //         departmentname: $("#txt_search_departmentname").val(),
+        //         statu: $("#txt_search_statu").val()
+        //     };
+        //     return temp;
+        // };
+        return oTableInit;
+    };
+
+</script>
+{% endblock %}

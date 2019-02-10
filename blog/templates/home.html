@@ -1,0 +1,148 @@
+{% extends 'base_front.html' %}
+{% from "macros.html" import blog_item,render_pagination %}
+{% block title %}首页{% endblock %}
+{% block head_css %}
+{{super()}}
+<style>
+    /* item-header */
+    .item-header {
+        min-height: 60px;
+        background-color: #f8f8f8;
+    }
+
+    .item-header .group-title {
+        line-height: 40px;
+        float: left;
+    }
+
+    .item-header .item-num {
+        line-height: 40px;
+        float: right;
+    }
+
+    /* blog-item */
+
+
+    .blog-item .blog-item-bottom p {
+        margin: 0px;
+        margin-right: 15px;
+    }
+
+    .blog-item h3 {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    /* 右侧个人信息 */
+    .info {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    /* popular */
+    .popular .popular-header {
+        min-height: 50px;
+        background-color: #f8f8f8;
+    }
+
+    .popular-header .title {
+        float: left;
+    }
+
+    .popular-header .more {
+        line-height: 30px;
+        float: right;
+    }
+
+    /* item-footer */
+    .item-footer {
+        text-align: center;
+    }
+
+    .item-footer .pagination {
+        margin-top: 5px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .item-footer a {
+        color: black !important;
+    }
+
+
+</style>
+{% endblock %}
+{% block body %}
+<div class="row clearfix">
+    <div class="col-md-12 column">
+
+        <div class="row clearfix">
+            <div class="col-md-8 column">
+                <div class="row clearfix">
+
+                    <div class="list-group">
+                        <div class="list-group-item col-md-12 column item-header">
+                            <!-- <span class="glyphicon glyphicon-book" aria-hidden="true"></span>  -->
+                            <h2 class="group-title">文章</h2>
+                            <h4 class="item-num">共 <span style="font-weight:bold;font-size: 28px">{{pagination.total}}</span> 篇</h4>
+                        </div>
+
+                        {% for blog in pagination.items %}
+                        {% if blog.status==1 %}
+                        {{ blog_item(blog) }}
+                        {% endif%}
+                        {% endfor %}
+                        <div class="list-group-item col-md-12 column item-footer">
+                            {{ render_pagination(pagination, 'front.index') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 column">
+                <div class="row clearfix info">
+                    <div class="col-sm-12 col-md-12">
+                        <div class="thumbnail">
+                            <img src="{{ url_for('static',filename='images/profile.jpg') }}" alt="...">
+                            <hr>
+                            <div class="caption">
+                                <h3>Mr. Cheng</h3>
+                                <br>
+                                <p>所谓岁月静好，是因为负重前行。--《那年那兔那些事》</p>
+                                <p> 岁月是异常有去无回的旅行，好的坏的都是风景。--《岁月神偷》</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 column">
+
+                        <ul class="list-group popular">
+                            <li class="list-group-item popular-header">
+
+                                <h3 class="title"><span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+                                    最新推荐</h3>
+                                <!-- <div class="more">
+                                    <a href="#">更多<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a>
+
+                                </div> -->
+
+                            </li>
+                            {% for blog in blogs%}
+                            <li class="list-group-item"><a href="{{url_for('front.blogDetail',id=blog.id)}}">{{loop.index}}.{{blog.title}}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+{% block tail_js %}
+{{super()}}
+<script>
+    $('#home').addClass('active')
+</script>
+{% endblock %}

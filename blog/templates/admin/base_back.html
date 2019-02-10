@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='images/avatar.jpg') }}" type="image/x-icon">
+    {% block head_css %}
+    <link rel="stylesheet" href="http://labfile.oss.aliyuncs.com/courses/923/week7/code/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/main.css') }}">
+    <style>
+    .logout{
+        border: 1px solid gray;
+    }
+    </style>
+    {% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="title-img"><img src="{{ url_for('static',filename='images/title.png') }}" alt=""></div>
+
+                <!-- <h2>Mr. Cheng</h2> -->
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                <ul class="nav navbar-nav">
+                    <li class="blog-manage">
+                        <!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> -->
+                        <a href="{{url_for('admin.blog_manage')}}"> 博客管理</a>
+                    </li>
+                    <li  class="category-manage">
+                        <!-- <span class="glyphicon glyphicon-home" aria-hidden="true"></span> -->
+                        <a href="{{url_for('admin.category_manage')}}"> 分类管理</a>
+                    </li>
+                    <li class="about-center">
+                        <!-- <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> -->
+                        <a href="#"> 个人中心</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li ><a class="logout" href="{{url_for('admin.logout')}}">退出登录</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </nav>
+    <div class="container">
+
+        {% block body %}{% endblock %}
+        {% block footer %}{% endblock %}
+    </div>
+    <div class="col-md-12 column footer ">
+        <hr style="margin-top:0px !important">
+        <div class="container">
+            <div class="row clearfix">
+                <div class="col-md-6 column">
+                    <p><span>联系方式:</span> QQ：777888999 Email：777888999@163.com </p>
+                </div>
+                <div class="col-md-6 column">
+                    <p>Copyright@2019 Blog Designed by Mr. Cheng</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {% block tail_js %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <script src="http://labfile.oss.aliyuncs.com/courses/923/week7/code/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    {% endblock %}
+</body>
+
+</html>

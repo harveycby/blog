@@ -1,0 +1,45 @@
+{% extends 'base_front.html' %}
+{% from "macros.html" import blog_item,render_pagination %}
+{% block title %}首页{% endblock %}
+{% block head_css %}
+{{super()}}
+<style>
+h1,h2,h3,h4,h5{
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
+    font-weight:bold !important;
+}
+.list-group{
+    margin-bottom: 30px !important;
+}
+.detail-title{
+    text-align: center;
+}
+</style>
+{% endblock %}
+{% block body %}
+<div class="list-group">
+    <div class="list-group-item col-md-12 column detail-header">
+        <!-- <span class="glyphicon glyphicon-book" aria-hidden="true"></span>  -->
+        <h1 class="detail-title">{{blog.title}}</h1>
+    </div>
+    <div style="display:none" id="hidden-content">{{blog.content}}</div>
+    <div class="list-group-item col-md-12 column detail-content">
+        <!-- <span class="glyphicon glyphicon-book" aria-hidden="true"></span>  -->
+        
+    </div>
+</div>
+{% endblock %}
+{% block tail_js %}
+{{ super() }}
+<script src="{{url_for('static',filename='js/Parser.js')}}"></script>
+<script>
+    $(function(){
+        
+        var parser = new HyperDown;
+        html = parser.makeHtml($('#hidden-content').text());
+        $('.detail-content').html(html);
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base_front.html' %}
+{% from "macros.html" import blog_item,render_pagination %}
+{% block title %}首页{% endblock %}
+{% block head_css %}
+{{super()}}
+<style>
+    /* item-header */
+    .item-header {
+        min-height: 60px;
+        background-color: #f8f8f8;
+    }
+
+    .item-header .group-title {
+        line-height: 40px;
+        float: left;
+    }
+
+    .item-header .item-num {
+        line-height: 40px;
+        float: right;
+    }
+    .category-blogs{
+        margin-top: 200px;
+    }
+    .btn-category{
+        margin: 10px;
+    }
+    .btn-category.isclick{
+        background-color: gray
+    }
+    /* item-footer */
+    .item-footer {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="col-md-2 col-sm-0 column"></div>
+<div class="col-md-8 col-sm-12 column">
+    <div class="row clearfix">
+
+        <div class="list-group">
+            <div class="list-group-item col-md-12 column item-header">
+                <!-- <span class="glyphicon glyphicon-book" aria-hidden="true"></span>  -->
+                <h2 class="group-title">类别</h2>
+                <h4 class="item-num">共 <span style="font-weight:bold;font-size: 28px">{{categories|length}}</span> 类</h4>
+            </div>
+            <div class="list-group-item col-md-12 column category-list">
+                {% for c in categories %}
+                <a href="{{url_for('front.category_classify',id=c.id)}}" class="btn btn-default btn-category"
+                    {%if c.id==category.id%}style="background-color:gray" {%endif%} type="button">
+                    {{c.name}} <span class="badge">{{c.blogs|length}}</span>
+                </a>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div class="list-group category-blogs">
+            <div class="list-group-item col-md-12 column item-header">
+                <!-- <span class="glyphicon glyphicon-book" aria-hidden="true"></span>  -->
+                <h2 class="group-title">{{category.name}}</h2>
+                <h4 class="item-num">共 <span style="font-weight:bold;font-size: 28px">{{category.blogs|length}}</span> 条</h4>
+            </div>
+            {% for blog in pagination.items %}
+            {% if blog.status==1 %}
+            {{ blog_item(blog) }}
+            {% endif%}
+            {% endfor %}
+            {% if pagination.total>5 %}
+            <div class="list-group-item col-md-12 column item-footer">
+                {{ render_pagination(pagination, 'front.category_classify') }}
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+{% block tail_js %}
+{{ super() }}
+<script>
+    $('.btn-category').click(function () {
+        console.log('sdfds')
+        $(this).addClass('isclick');
+    });
+    $('#categories').addClass('active')
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base_front.html' %}
+{% from "macros.html" import blog_item,render_pagination %}
+{% block title %}首页{% endblock %}
+{% block head_css %}
+{{super()}}
+<style>
+
+</style>
+{% endblock %}
+{% block body %}
+<div class="row clearfix">
+    <div class="col-md-12 column">
+
+        <div class="row clearfix">
+            <div class="col-md-8 column">
+                <div class="row clearfix">
+                    <div class="jumbotron">
+                        <h1>关于本站</h1>
+                        <br>
+                        <p>只要我们还在路上，还能微笑，还会哭泣；低头行走，大地还在；抬头仰望，星空还在；驻足欣赏，树还在绿，风还在吹，水还在流。相信，你终会看到，那颗梦想的树，开出满树繁花，你隐形的翅膀已张开羽翼，在阳光里向着广阔的蓝天飞翔！</p>
+                        <p>火那么壮大，水却熄灭它。水那么壮大，土却掩埋它。土那么壮大，风却吹散它。风那么壮大，山却阻挡它。山那么壮大，人却铲除它。人那么壮大，权位、爱恨、名利却动摇他。权位、爱恨、名利那么壮大，时间却消磨它。时间最壮大吗？不，是“心”—— 当心空无一物，它便无边无涯。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 column">
+                <div class="row clearfix info">
+                    <div class="col-sm-12 col-md-12">
+                        <div class="thumbnail">
+                            <img src="{{ url_for('static',filename='images/profile.jpg') }}" alt="...">
+                            <hr>
+                            <div class="caption">
+                                <h3>Mr. Cheng</h3>
+                                <br>
+                                <p>所谓岁月静好，是因为负重前行。--《那年那兔那些事》</p>
+                                <p> 岁月是异常有去无回的旅行，好的坏的都是风景。--《岁月神偷》</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block tail_js %}
+{{ super() }}
+<script>
+    $('#about').addClass('active')
+</script>
+{% endblock %}
